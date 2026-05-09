@@ -1,8 +1,10 @@
 # OpenRM
 
-An unofficial iOS companion app for the **ResMed AirSense 11** CPAP. OpenRM
-talks to the device over BLE, decodes its therapy spools, runs an on-device
-sleep-staging model, and writes sessions into Apple Health.
+**OpenRM is an unofficial iOS app that syncs your ResMed AirSense 11
+CPAP with Apple Health.** It pairs with the device over BLE, decodes
+its therapy spools, runs an on-device sleep-staging model, and writes
+each night's sessions into the Health app — so your CPAP data lives
+alongside the rest of your health data, no cloud round-trip required.
 
 > **Not affiliated with, endorsed by, or supported by ResMed Inc.**
 > AirSense and myAir are trademarks of ResMed. This is independent

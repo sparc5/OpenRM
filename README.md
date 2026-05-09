@@ -152,6 +152,15 @@ absolutely exist. Issues and PRs welcome.
 
 ## License
 
-TBD. Treat this as "all rights reserved" until a license file is added.
-Do not redistribute decoded ResMed firmware or proprietary protocol
-specifications via PRs.
+OpenRM is licensed under the **GNU General Public License v3.0**. See
+[`LICENSE`](LICENSE) for the full text.
+
+In short: you may use, study, modify, and redistribute this code,
+provided that any distributed derivative work is also licensed under
+GPL-3.0 and ships its source. This is the same license as the
+[OSCAR project](https://gitlab.com/CrimsonNape/OSCAR-code), so the two
+ecosystems remain interoperable.
+
+Note: the license governs OpenRM's source code only. Do not submit
+PRs containing decompiled ResMed firmware, decoded proprietary
+protocol specifications, or other ResMed-copyrighted material.

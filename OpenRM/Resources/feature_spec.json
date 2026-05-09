@@ -1,0 +1,25 @@
+{
+  "base_channels": [
+    "rr",
+    "tv",
+    "mv",
+    "mp",
+    "set_p",
+    "leak",
+    "coverage",
+    "hr"
+  ],
+  "flag_columns": [
+    "hk_available"
+  ],
+  "rolling_windows_min": [
+    3,
+    10,
+    30
+  ],
+  "slope_windows_min": [
+    5,
+    15
+  ],
+  "session_gap_min": 5
+}

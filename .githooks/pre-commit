@@ -1,0 +1,67 @@
+#!/bin/sh
+#
+# OpenRM pre-commit guard.
+#
+# Blocks commits whose STAGED changes reintroduce data that must never
+# land in this public repo:
+#
+#   1. A non-empty DEVELOPMENT_TEAM in the Xcode project. Opening the
+#      project in Xcode silently rewrites this back to the author's
+#      Apple Developer Team ID. It must stay `DEVELOPMENT_TEAM = ""`.
+#
+#   2. Absolute /Users/ home-directory paths (e.g. a stray
+#      UILaunchStoryboardName pointing at someone's Downloads folder).
+#      These leak a username and break on every other machine.
+#
+# Escape hatch (use only when you are certain the match is benign):
+#   OPENRM_ALLOW_PII=1 git commit ...
+#
+# This hook is tracked in the repo under .githooks/. Enable it with:
+#   git config core.hooksPath .githooks
+
+if [ "$OPENRM_ALLOW_PII" = "1" ]; then
+	echo "pre-commit: OPENRM_ALLOW_PII=1 set — skipping PII guard." >&2
+	exit 0
+fi
+
+# Only inspect added lines in the staged diff (strip the +++ headers).
+# Exclude Markdown docs and this hook directory: those legitimately
+# discuss the very strings we guard against, and would self-block.
+added=$(git diff --cached -U0 --no-color --diff-filter=ACM -- \
+	. ':(exclude)*.md' ':(exclude).githooks/*' \
+	| grep '^+' | grep -v '^+++')
+
+fail=0
+
+# Match an actual Team-ID token (Apple IDs are ~10 alphanumerics),
+# quoted or unquoted. The empty form `DEVELOPMENT_TEAM = ""` has no
+# such token and is therefore allowed.
+team_hits=$(printf '%s\n' "$added" | grep -E 'DEVELOPMENT_TEAM[[:space:]]*=[[:space:]]*"?[A-Za-z0-9]{8,}')
+if [ -n "$team_hits" ]; then
+	echo "BLOCKED: staged change sets a non-empty DEVELOPMENT_TEAM." >&2
+	echo "         This public repo must keep DEVELOPMENT_TEAM = \"\"." >&2
+	echo "         Offending staged line(s):" >&2
+	printf '%s\n' "$team_hits" | sed 's/^/           /' >&2
+	echo "         Fix: set DEVELOPMENT_TEAM = \"\" in project.pbxproj," >&2
+	echo "         restage, and commit again." >&2
+	fail=1
+fi
+
+path_hits=$(printf '%s\n' "$added" | grep -E '/Users/[A-Za-z0-9._-]+')
+if [ -n "$path_hits" ]; then
+	echo "BLOCKED: staged change contains an absolute /Users/ path." >&2
+	echo "         Hardcoded home paths leak a username and break on" >&2
+	echo "         other machines. Use a bundle-relative reference." >&2
+	echo "         Offending staged line(s):" >&2
+	printf '%s\n' "$path_hits" | sed 's/^/           /' >&2
+	fail=1
+fi
+
+if [ "$fail" -ne 0 ]; then
+	echo "" >&2
+	echo "Commit aborted by .githooks/pre-commit." >&2
+	echo "If this match is genuinely safe: OPENRM_ALLOW_PII=1 git commit ..." >&2
+	exit 1
+fi
+
+exit 0

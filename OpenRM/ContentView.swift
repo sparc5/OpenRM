@@ -9,15 +9,21 @@ import AppKit
 #endif
 
 struct ContentView: View {
+    @AppStorage("hasAcceptedDisclaimer") private var hasAcceptedDisclaimer = false
+
     var body: some View {
-        DashboardView()
-            .preferredColorScheme(.dark)
-            #if canImport(AppKit)
-            .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
-                // Clean exit: nothing to do here — just let the app die.
-                // The notification unblocks any hanging RunLoop.
+        if hasAcceptedDisclaimer {
+            DashboardView()
+                .preferredColorScheme(.dark)
+                #if canImport(AppKit)
+                .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+                }
+                #endif
+        } else {
+            DisclaimerView {
+                hasAcceptedDisclaimer = true
             }
-            #endif
+        }
     }
 }
 
